@@ -24,7 +24,7 @@ def align_VR_to_2P(self, overwrite=True, run_ttl_check = False):
     if self.vr_data is None or overwrite:
         # load sqlite file as pandas array
     
-        if "wheel" in self.vr_filename:
+        if "wheel" in self.vr_filename or "social-0043-1" in self.vr_filename:
             df = pp.load_sqlite(self.vr_filename,fix_teleports=False)
         else:
             df = pp.load_sqlite(self.vr_filename,fix_teleports=True)

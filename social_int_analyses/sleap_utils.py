@@ -361,7 +361,7 @@ def pad_vr_data(locations, sess):
 
     if loc_frames >= sess_frames:
         print("Warning: VR does not have more frames than tunnel data")
-        return
+        return locations
 
     padding = sess_frames - loc_frames
 
@@ -380,12 +380,12 @@ def add_tunnel_sess(h5_path, sess):
     df['locations'] = fill_missing(df['locations'])
 
     # pad locations data to equal len of vr data 
-    # df['locations'] = pad_vr_data(df['locations'], sess)
-
-    # caluclate head velocity 
-    head_loc = df['locations'][:, HEAD_INDEX, :, :]
-    head_vel = smooth_diff(head_loc[:, :, 0])
-    df['head_velocity'] = head_vel
+    df['locations'] = pad_vr_data(df['locations'], sess)
+    print(df['locations'])
+    # # caluclate head velocity 
+    # head_loc = df['locations'][:, HEAD_INDEX, :, :]
+    # head_vel = smooth_diff(head_loc[:, :, 0])
+    # df['head_velocity'] = head_vel
 
     # store individual node x and y values 
     nodes = store_nodes(df)
@@ -394,20 +394,20 @@ def add_tunnel_sess(h5_path, sess):
 
     # TODO: quantify amount of time spent on the sides vs the middle
 
-    # Quantify time spent in 'interaction zone'
-    filtered_frames = []
+    # # Quantify time spent in 'interaction zone'
+    # filtered_frames = []
     
-    head_x = np.array(nodes_df['head_x']).astype(float)
-    head_y = np.array(nodes_df['head_y']).astype(float)
+    # head_x = np.array(nodes_df['head_x']).astype(float)
+    # head_y = np.array(nodes_df['head_y']).astype(float)
     
-    # interaction zone x = [300,400] y=[200,300]
-    # int_zone = (nose_x >= 300) & (nose_x <= 400) & (nose_y >= 200) & (nose_y <= 300)
-    int_zone = (head_x >= 300) & (head_x <= 400) & (head_y >= 200) & (head_y <= 250)
+    # # interaction zone x = [300,400] y=[200,300]
+    # # int_zone = (nose_x >= 300) & (nose_x <= 400) & (nose_y >= 200) & (nose_y <= 300)
+    # int_zone = (head_x >= 300) & (head_x <= 400) & (head_y >= 200) & (head_y <= 250)
     
-    frame_indices = np.where(int_zone)[0]  
-    filtered_frames.append(frame_indices)
+    # frame_indices = np.where(int_zone)[0]  
+    # filtered_frames.append(frame_indices)
     
-    df['interaction'] = int_zone
+    # df['interaction'] = int_zone
 
     # store key points in og dataframe 
     keypoints = {

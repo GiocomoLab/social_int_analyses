@@ -22,9 +22,8 @@ and saved in `path_dict['preprocessed_root']/sess/<animal>/<date>`.
 
 Set `overwrite` to `True` if you want to overwrite existing .pickle files. Otherwise, you will get an error that the file already exists.
 
-<!-- #region jp-MarkdownHeadingCollapsed=true -->
+
 ### import dependencies
-<!-- #endregion -->
 
 ```python
 overwrite = True
@@ -81,7 +80,7 @@ def update_sess_dict(mouse, day, KO = True):
     vrdir = path_dict['VR_Data']
     basedir = os.path.join(path_dict['sbx_root'], mouse,date,scene)
     stem =  os.path.join(basedir, f'{scene}_{session:03}_{scan:03}')
-    source_folder =  'C:/Users/esay/data/social_interaction/SLEAP_raw/videos' # CHANGE SO DEPENDENT ON PATH DICT
+    source_folder =  path_dict['video_data'] # CHANGE SO DEPENDENT ON PATH DICT
     source_stem = os.path.join(source_folder, mouse, (scene +'.h5') )
     
     d.update({'mouse': mouse ,
@@ -112,15 +111,12 @@ def run_and_save(d):
 
 ```python
 social_mice
-
 ```
 
-<!-- #region jp-MarkdownHeadingCollapsed=true -->
 ### for loop to create sess files for all mice
-<!-- #endregion -->
 
 ```python
-for mouse in social_mice:
+for mouse in social_mice[5:6]:
     print(mouse)
     for day in range(18):
         print(day)
@@ -132,7 +128,11 @@ for mouse in social_mice:
 ### try generating one sess file first
 
 ```python
-mouse = 'social-0057-1'
+sess.vr_filename
+```
+
+```python
+mouse = 'social-0043-1'
 day = 0
 d = update_sess_dict(mouse, day)
 

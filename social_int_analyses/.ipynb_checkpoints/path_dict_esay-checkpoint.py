@@ -30,6 +30,7 @@ FIG_DIR = os.path.join(DATA_ROOT,"fig_scratch")
 path_dictionary = {
     "preprocessed_root": PP_ROOT,
     "sbx_root": SBX_ROOT,
+    "video_data": ("C:/Users/esay/data/social_interaction/SLEAP_raw/videos"),
     "VR_Data": os.path.join(PP_ROOT,"VRData"),
     "git_repo_root": GIT_ROOT,
     "TwoPUtils": os.path.join(GIT_ROOT,"TwoPUtils"),

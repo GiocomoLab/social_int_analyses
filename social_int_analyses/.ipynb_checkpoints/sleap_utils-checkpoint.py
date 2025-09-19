@@ -355,7 +355,7 @@ def smooth_diff(node_loc, win=25, poly=3):
 
     return node_vel
 
-def pad_vr_data(locations, sess):
+def pad_sleap_data(locations, sess):
     sess_frames = sess.vr_data.shape[0]
     loc_frames = locations.shape[0]
 
@@ -365,6 +365,7 @@ def pad_vr_data(locations, sess):
 
     padding = sess_frames - loc_frames
 
+    # change to NaNs
     nan_frames = np.zeros((padding, locations.shape[1], locations.shape[2], locations.shape[3]))
     locations = np.concatenate((nan_frames, locations),axis=0)
     print("Padding locations. New shape:", locations.shape)
@@ -380,8 +381,8 @@ def add_tunnel_sess(h5_path, sess):
     df['locations'] = fill_missing(df['locations'])
 
     # pad locations data to equal len of vr data 
-    df['locations'] = pad_vr_data(df['locations'], sess)
-    print(df['locations'])
+    df['locations'] = pad_sleap_data(df['locations'], sess)
+    # print(df['locations'])
     # # caluclate head velocity 
     # head_loc = df['locations'][:, HEAD_INDEX, :, :]
     # head_vel = smooth_diff(head_loc[:, :, 0])

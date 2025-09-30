@@ -19,12 +19,11 @@ HOME = os.path.expanduser("~")
 
 DATA_ROOT = os.path.join("Z:/giocomo/candong/social_interaction_data/calcium_imaging")  # parent path to data
 PP_ROOT = ('C:/Users/esay/data/social_interaction') # path to preprocessed data
-SBX_ROOT = ("Z:/giocomo/candong/social_interaction_data/calcium_imaging") #os.path.join("/Volumes") # scanbox data path, if different from preprocessed data path
+SBX_ROOT = ("Z:/giocomo/candong/social_interaction_data/calcium_imaging") # scanbox data path, if different from preprocessed data path
 
 GIT_ROOT = os.path.join(HOME,"repos")
 
 FIG_DIR = os.path.join(DATA_ROOT,"fig_scratch")
-#os.path.join("/Users/marielenasosa/Library/Mobile Documents/com~apple~CloudDocs","Data","fig_scratch")
 
 
 path_dictionary = {

@@ -22,8 +22,9 @@ and saved in `path_dict['preprocessed_root']/sess/<animal>/<date>`.
 
 Set `overwrite` to `True` if you want to overwrite existing .pickle files. Otherwise, you will get an error that the file already exists.
 
-
+<!-- #region jp-MarkdownHeadingCollapsed=true -->
 ### import dependencies
+<!-- #endregion -->
 
 ```python
 overwrite = True
@@ -55,7 +56,9 @@ import matplotlib.pyplot as plt
 %autoreload 2
 ```
 
+<!-- #region jp-MarkdownHeadingCollapsed=true -->
 ### Specify your path dictionary here.
+<!-- #endregion -->
 
 ```python
 from social_int_analyses.path_dict_esay import path_dictionary as path_dict
@@ -113,10 +116,12 @@ def run_and_save(d):
 social_mice
 ```
 
+<!-- #region jp-MarkdownHeadingCollapsed=true -->
 ### for loop to create sess files for all mice
+<!-- #endregion -->
 
 ```python
-for mouse in social_mice[5:6]:
+for mouse in social_mice[-2:-1]:
     print(mouse)
     for day in range(18):
         print(day)
@@ -125,27 +130,29 @@ for mouse in social_mice[5:6]:
 
 ```
 
+<!-- #region jp-MarkdownHeadingCollapsed=true -->
 ### try generating one sess file first
+<!-- #endregion -->
 
 ```python
-sess.vr_filename
+mouse = 'social-0059-1'
+day = -1
+d = update_sess_dict(mouse, day)
+d
 ```
 
 ```python
-mouse = 'social-0043-1'
-day = 0
-d = update_sess_dict(mouse, day)
 
 sess = TwoPUtils.sess.Session(**d)
 sess.load_scan_info(sbx_version=3) #check sess.scan_info
 alignment.align_VR_to_2P(sess)
 # depends on vr being loaded already
 alignment.align_SLEAP_to_2P(sess)
-# sess.tunnel_data.shape, sess.vr_data.shape
 ```
 
 ```python
 TwoPUtils.sess.save_session(sess,'C:/Users/esay/data/social_interaction/SessPkls')
+TwoPUtils.sess.save_session(sess, 'Z:/giocomo/esay/hipposs/social_interaction_data/processed_data/SessPkls')
 ```
 
 <!-- #region jp-MarkdownHeadingCollapsed=true -->

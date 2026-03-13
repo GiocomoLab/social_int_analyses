@@ -67,7 +67,8 @@ def get_ind_of_exp_day(sess_list, exp_day):
 
 def load_vr_day(mouse,day, verbose = True, trial_mat_keys = ('licks','speed'), timeseries_keys = ('licks', 'speed')):
     if mouse in social_mice:
-        pkldir = os.path.join('C:/Users/esay/data/social_interaction/VRPkls', mouse)
+        pkldir = os.path.join('Z:/giocomo/candong/social_interaction_data/processed_data/SessPkls_tunnel_face_trials', mouse) #'C:/Users/esay/data/social_interaction/VRPkls', mouse) 'Z:/giocomo/candong/social_interaction_data/processed_data/SessPkls_tunnel_face_trials' sZ:/giocomo/candong/social_interaction_data/calcium_imaging/sess
+        
         deets = social_int_sess_deets.social_VR_sessions[mouse][day]
         
     else:
@@ -80,12 +81,15 @@ def load_vr_day(mouse,day, verbose = True, trial_mat_keys = ('licks','speed'), t
         sess_list = []
         for _deets in deets:
             _sess = tpu.sess.Session.from_file(
-                os.path.join(pkldir, _deets['date'], "%s_%d.pkl" % (_deets['scene'], _deets['session'])),
+                os.path.join(pkldir, _deets['date'], "00%s_00%d.pkl" % (_deets['scene'], _deets['session'])),
                 verbose=False)
 
             sess_list.append(_sess)
     else:
-        pkl_path = os.path.join(pkldir, deets['date'], "%s_%d.pkl" % (deets['scene'], deets['session']))
+        pkl_path = os.path.join(pkldir, deets['date'], "%s_00%d_0%r_tunnel_face_trials.pickle" % (deets['scene'], deets['session'], deets['scan']))
+        # pkl_path = os.path.join(pkldir, deets['date'], "%s_00%d_0%r_withbinned_data_0928.pickle" % (deets['scene'], deets['session'], deets['scan']))
+
+        
         sess = pickle.load(open(pkl_path, "rb"))
 
     return sess
@@ -158,11 +162,11 @@ def is_putative_interneuron(sess, ts_key='dff', method='speed',
 def update_sess_dict(mouse, f, KO = True):
     scan_str = "%s_%03d_%03d" % (f['scene'],f['session'] ,f['scan'])
     
-    source_folder = "C:/Users/esay/data/social_interaction/VRData"
+    source_folder = "Z:/giocomo/esay/hipposs/social_interaction_data/behavior"
     source_stem = os.path.join(source_folder, mouse, f['date'], f['scene'], scan_str)
 
     f['mouse']=mouse
-    f.update({'vr_filename': os.path.join("C:/Users/esay/data/social_interaction/VRData",f['mouse'],f['date'],"%s_%d.sqlite" %(f['scene'],f['session'])),
+    f.update({'vr_filename': os.path.join("Z:/giocomo/esay/hipposs/social_interaction_data/behavior",f['mouse'],f['date'],"%s_%d.sqlite" %(f['scene'],f['session'])),
               'scan_number': f['scan'],
               'prompt_for_keys': False,
               'VR_only': True,

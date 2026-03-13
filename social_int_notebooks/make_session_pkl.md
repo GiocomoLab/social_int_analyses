@@ -22,9 +22,8 @@ and saved in `path_dict['preprocessed_root']/sess/<animal>/<date>`.
 
 Set `overwrite` to `True` if you want to overwrite existing .pickle files. Otherwise, you will get an error that the file already exists.
 
-<!-- #region jp-MarkdownHeadingCollapsed=true -->
+
 ### import dependencies
-<!-- #endregion -->
 
 ```python
 overwrite = True
@@ -56,9 +55,7 @@ import matplotlib.pyplot as plt
 %autoreload 2
 ```
 
-<!-- #region jp-MarkdownHeadingCollapsed=true -->
 ### Specify your path dictionary here.
-<!-- #endregion -->
 
 ```python
 from social_int_analyses.path_dict_esay import path_dictionary as path_dict
@@ -90,7 +87,7 @@ def update_sess_dict(mouse, day, KO = True):
               
               'scan_file':stem + '.sbx',
               'scanheader_file': stem + '.mat',
-              'vr_filename': os.path.join("C://Users/esay/data/social_interaction/VRData",mouse,date,"%s_%d.sqlite" %(scene,session)),  # CHANGE SO DEPENDENT ON PATH DICT
+              'vr_filename': os.path.join("Z:/giocomo/esay/hipposs/social_interaction_data/behavior",mouse,date,"%s_%d.sqlite" %(scene,session)),  # CHANGE SO DEPENDENT ON PATH DICT
               'scan_number': scan,
               'prompt_for_keys': False,
               'VR_only': False,
@@ -130,13 +127,12 @@ for mouse in social_mice[-2:-1]:
 
 ```
 
-<!-- #region jp-MarkdownHeadingCollapsed=true -->
 ### try generating one sess file first
-<!-- #endregion -->
 
 ```python
-mouse = 'social-0059-1'
-day = -1
+mouse = 'social-0051-3'
+day = 10
+
 d = update_sess_dict(mouse, day)
 d
 ```

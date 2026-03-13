@@ -28,6 +28,7 @@ def align_VR_to_2P(self, overwrite=True, run_ttl_check = False):
             df = pp.load_sqlite(self.vr_filename,fix_teleports=False)
         else:
             df = pp.load_sqlite(self.vr_filename,fix_teleports=True)
+            print(df.shape)
         
         if not self.VR_only:
             # feed pandas array and scene name to alignment function

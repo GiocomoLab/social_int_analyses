@@ -18,21 +18,20 @@ def list_mp4_files(directory):
     # List to store mp4 file names
     mp4_files = []
 
-    # Iterate through files in the given directory
-    for filename in os.listdir(directory):
-        # Check if file is an mp4
-        if filename.endswith('.mp4'):
-            mp4_files.append(filename)
+    for day in os.listdir(directory):
+        day_path= os.path.join(directory, day)
+        for condition in os.listdir(day_path):
+            condition_path = os.path.join(day_path, condition)
+            for file in os.listdir(condition_path):
+                if file.endswith('tunnel.mp4'):
+                    full_path = os.path.join(condition_path, file)
+                    mp4_files.append(full_path)
+
     
     return mp4_files
 
-    
-# Change the brightness and contrast here
-brightness_value = 0.1 
-contrast_value = 1.2   
 
-# make bash script to edit brightness and contrast using ffmpeg
-def edit_video(dir, output, mp4_files, brightness=0.0, contrast=1.0): #defaults brightness 0.0 default contrast 1.0
+def edit_video_bash(dir, output, mp4_files, brightness=0.0, contrast=1.0): #defaults brightness 0.0 default contrast 1.0
     # Create a bash script file
     script_path = os.path.join(dir, 'edit_videos.sh')
     
@@ -47,10 +46,10 @@ def edit_video(dir, output, mp4_files, brightness=0.0, contrast=1.0): #defaults 
             output_path = os.path.join(output, f"{filename}_edited.mp4")
             
             # Generate ffmpeg command to adjust brightness and contrast
-            # ffmpeg_command = f"ffmpeg -i \"{input_path}\" -vf eq=brightness={brightness}:contrast={contrast} \"{output_path}\"\n"
+            ffmpeg_command = f"ffmpeg -i \"{input_path}\" -vf eq=brightness={brightness}:contrast={contrast} \"{output_path}\"\n"
 
             # Generate ffmpeg command to convert file type
-            ffmpeg_command = f"ffmpeg -y -i \"{input_path}\" -c:v libx264 -pix_fmt yuv420p -preset superfast -crf 23 \"{output_path}\"\n"
+            # ffmpeg_command = f"ffmpeg -y -i \"{input_path}\" -c:v libx264 -pix_fmt yuv420p -preset superfast -crf 23 \"{output_path}\"\n"
             
             # Write the command to the bash script
             script_file.write(ffmpeg_command)
@@ -59,19 +58,48 @@ def edit_video(dir, output, mp4_files, brightness=0.0, contrast=1.0): #defaults 
     os.chmod(script_path, 0o755)
     print(f"Bash script created: {script_path}")
 
+
+def edit_video_batch(dir, output, mp4_files, brightness=0.0, contrast=1.0): #defaults brightness 0.0 default contrast 1.0
+    # Create a bash script file
+    script_path = os.path.join(dir, 'edit_videos.')
+    
+    with open(script_path, 'w') as script_file:
+        # Write the bash script header
+        script_file.write("@echo off\n\n")
+
+        # Loop through each mp4 file and generate ffmpeg commands
+        for video in mp4_files:
+            filename = os.path.splitext(video)[0]
+            input_path = os.path.join(dir, video)
+            output_path = os.path.join(output, f"{filename}_edited.mp4")
+            
+            # Generate ffmpeg command to adjust brightness and contrast
+            ffmpeg_command = f"ffmpeg -i \"{input_path}\" -vf eq=brightness={brightness}:contrast={contrast} \"{output_path}\"\n"
+
+            # Generate ffmpeg command to convert file type
+            # ffmpeg_command = f"ffmpeg -y -i \"{input_path}\" -c:v libx264 -pix_fmt yuv420p -preset superfast -crf 23 \"{output_path}\"\n"
+            
+            # Write the command to the bash script
+            script_file.write(ffmpeg_command)
+
+    # Make the bash script executable
+    os.chmod(script_path, 0o755)
+    print(f"Batch script created: {script_path}")
+
 def create_inference_bash(directory, mp4_files, model_path, batch_size=4):
     # Calculate the number of scripts needed
     num_scripts = math.ceil(len(mp4_files) / batch_size)
 
     # Write the bash scripts
     for script_index in range(num_scripts):
-        # Create a bash script file
-        script_filename = f"{str(script_index+1).zfill(2)}_inference.bash" #name scripts
+        # Create a bash script file 
+        script_filename = f"{str(script_index+1).zfill(2)}_inference.sh" #name scripts
         script_path = os.path.join(directory, script_filename)
 
         with open(script_path, 'w') as script_file:
-            # Write the bash script header
+            # Write the bash script header (LINUX)
             script_file.write("#!/bin/bash\n\n")
+            # Write the batch script header (WINDOWS)
 
             # Write sleap-track commands for a batch of videos
             start_index = script_index * batch_size
@@ -81,7 +109,8 @@ def create_inference_bash(directory, mp4_files, model_path, batch_size=4):
                 video_path = os.path.join(directory, mp4_files[i])
                 sleap_command = (
                     f"sleap-track \"{video_path}\" "
-                    f"-m \"{model_path}\"\n"
+                    f"-m \"{model_path}\""
+                    f"-o \"{video_path}.predictions.slp\n"
 
                     # Convert .slp files to .h5 files for analysis
                     f"sleap-convert \"{video_path}.predictions.slp\" "
@@ -95,7 +124,24 @@ def create_inference_bash(directory, mp4_files, model_path, batch_size=4):
 
     print(f"Created {num_scripts} bash scripts in {directory}")
 
+def get_output_folder(video_path):
+    path = os.path.normpath(video_path)
+    parts = path.split(os.sep)
+    
+    try:
+        idx = 7 #parts.index("SLEAP_raw")
+    except ValueError:
+        raise ValueError("Path must contain 'SLEAP_raw'")
+    mouse = parts[idx]
+    day = parts[idx + 1]
+    condition = "social_" + parts[idx + 2]
+    output = os.path.join('C:/', *parts[1:idx], mouse, day, condition)
+    return output
+
+
 def create_inference_batch(directory, mp4_files, model_path, batch_size=4):
+    
+
     # Calculate the number of scripts needed
     num_scripts = math.ceil(len(mp4_files) / batch_size)
 
@@ -118,14 +164,17 @@ def create_inference_batch(directory, mp4_files, model_path, batch_size=4):
 
             for i in range(start_index, end_index):
                 video_path = os.path.join(directory, mp4_files[i])
+
+                output = get_output_folder(mp4_files[i])
                 sleap_command = (
                     f"sleap-track \"{video_path}\" "
                     f"-m \"{model_path}\" "
-                    f"-o \"{video_path}.predictions.slp\n"
+                    f" -o \"{video_path}.predictions.slp\" \n"
 
                     # Convert .slp files to .h5 files for analysis
                     f"sleap-convert \"{video_path}.predictions.slp\" "
-                    f"--format analysis \n"
+                    f" -o \"{output}.h5\""
+                    f" --format analysis \n"
                 )
                 # Write the command to the bash script
                 script_file.write(sleap_command)
@@ -154,48 +203,57 @@ def import_single_slp(filename):
     print(dset_names)
     print()
 
-    print("===locations data shape===")
-    print(locations.shape)
-    print()
+    # print("===locations data shape===")
+    # print(locations.shape)
+    # print()
 
-    print("===nodes===")
-    for i, name in enumerate(node_names):
-        print(f"{i}: {name}")
-    print()
+    # print("===nodes===")
+    # for i, name in enumerate(node_names):
+    #     print(f"{i}: {name}")
+    # print()
 
     
     return data
 
-def import_h5_dir(directory):
-    # Get a list of all .h5 files in the directory
-    h5_files = [f for f in os.listdir(directory) if f.endswith('.h5')]
-    print(h5_files)
-    # Initialize an empty list to store data for the DataFrame
+
+def import_h5_dir(directory, social_int_behavior, mouse):
     data = []
 
-    for h5_file in h5_files:
-        print(h5_file)
-        filename = os.path.join(directory, h5_file)
-        # print(filename)
-        # Open and process the .h5 file
-        with h5py.File(filename, "r") as f:
-            # dset_names = list(f.keys())
-            locations = f["tracks"][:].T
-            # print(locations)
-            node_names = [n.decode() for n in f["node_names"][:]]
-            
-            # Append the data to the list
-            condition = extract_condition(h5_file)
-            # print(condition)
-            # filename = extract_filename(h5_file)
-            data.append({
-                'filename': filename,
-                'name': h5_file,
-                'location shape': locations.shape,
-                'locations': locations,
-                'condition': condition
-            })
+    # Get all dates for this mouse
+    for day in range(len(social_int_behavior[mouse])):
+        subdirs = social_int_behavior[mouse][day]['date']
+
+        subdir_path = os.path.join(directory, subdirs)
+        if not os.path.isdir(subdir_path):
+            print(f"Skipping non-directory: {subdir_path}")
+            continue
+
+        # Get all .h5 files in this subdirectory
+        h5_files = [f for f in os.listdir(subdir_path) if f.endswith('.h5')]
+        print(f"Found in {subdir_path}: {h5_files}")
+
+        for h5_file in h5_files:
+            filename = os.path.join(subdir_path, h5_file)
+            try:
+                with h5py.File(filename, "r") as f:
+                    locations = f["tracks"][:].T
+                    node_names = [n.decode() for n in f["node_names"][:]]
+                    condition = extract_condition(h5_file)
+                    data.append({
+                        'filename': filename,
+                        'name': h5_file,
+                        'location shape': locations.shape,
+                        'locations': locations,
+                        'condition': condition,
+                        'mouse': mouse,
+
+                    })
+            except Exception as e:
+                print(f"Error reading {filename}: {e}")
+
     return data
+
+
 
 
 def extract_condition(filename):
@@ -297,17 +355,38 @@ def smooth_diff(node_loc, win=25, poly=3):
 
     return node_vel
 
+def pad_sleap_data(locations, sess):
+    sess_frames = sess.vr_data.shape[0]
+    loc_frames = locations.shape[0]
+
+    if loc_frames >= sess_frames:
+        print("Warning: VR does not have more frames than tunnel data")
+        return locations
+
+    padding = sess_frames - loc_frames
+
+    # change to NaNs
+    nan_frames = np.zeros((padding, locations.shape[1], locations.shape[2], locations.shape[3]))
+    locations = np.concatenate((nan_frames, locations),axis=0)
+    print("Padding locations. New shape:", locations.shape)
+
+    return locations
+
 def add_tunnel_sess(h5_path, sess):
     
     # import pre-process sleap h5 file
     df = import_single_slp(h5_path)
+    
     #interpolate over missing values
     df['locations'] = fill_missing(df['locations'])
 
-    # caluclate head velocity 
-    head_loc = df['locations'][:, HEAD_INDEX, :, :]
-    head_vel = smooth_diff(head_loc[:, :, 0])
-    df['head_velocity'] = head_vel
+    # pad locations data to equal len of vr data 
+    df['locations'] = pad_sleap_data(df['locations'], sess)
+    # print(df['locations'])
+    # # caluclate head velocity 
+    # head_loc = df['locations'][:, HEAD_INDEX, :, :]
+    # head_vel = smooth_diff(head_loc[:, :, 0])
+    # df['head_velocity'] = head_vel
 
     # store individual node x and y values 
     nodes = store_nodes(df)
@@ -316,20 +395,20 @@ def add_tunnel_sess(h5_path, sess):
 
     # TODO: quantify amount of time spent on the sides vs the middle
 
-    # Quantify time spent in 'interaction zone'
-    filtered_frames = []
+    # # Quantify time spent in 'interaction zone'
+    # filtered_frames = []
     
-    head_x = np.array(nodes_df['head_x']).astype(float)
-    head_y = np.array(nodes_df['head_y']).astype(float)
+    # head_x = np.array(nodes_df['head_x']).astype(float)
+    # head_y = np.array(nodes_df['head_y']).astype(float)
     
-    # interaction zone x = [300,400] y=[200,300]
-    # int_zone = (nose_x >= 300) & (nose_x <= 400) & (nose_y >= 200) & (nose_y <= 300)
-    int_zone = (head_x >= 300) & (head_x <= 400) & (head_y >= 200) & (head_y <= 250)
+    # # interaction zone x = [300,400] y=[200,300]
+    # # int_zone = (nose_x >= 300) & (nose_x <= 400) & (nose_y >= 200) & (nose_y <= 300)
+    # int_zone = (head_x >= 300) & (head_x <= 400) & (head_y >= 200) & (head_y <= 250)
     
-    frame_indices = np.where(int_zone)[0]  
-    filtered_frames.append(frame_indices)
+    # frame_indices = np.where(int_zone)[0]  
+    # filtered_frames.append(frame_indices)
     
-    df['interaction'] = int_zone
+    # df['interaction'] = int_zone
 
     # store key points in og dataframe 
     keypoints = {
@@ -355,5 +434,17 @@ def add_tunnel_sess(h5_path, sess):
     print(sess.tunnel_df.keys())
     tpu.sess.save_session(sess,'C:/Users/esay/data/social_interaction/VRPkls')
 
+    tunnel_data = {key: value for key, value in df.items() if key !='locations'}
+    df = pd.DataFrame(tunnel_data)
     return df 
-    
+
+
+# plotting utisl
+
+def plot_trace(df):
+    # df = sess.tunnel_data
+    plt.figure(figsize=(7,7))
+    plt.plot(df['nose_x'],1*df['nose_y'], 'b',label='Nose')
+    # plt.plot(df['leftear_x'][i],-1*df['leftear_y'][i], 'b',label='Left ear')
+    # plt.plot(df['rightear_x'][i],-1*df['rightear_y'][i], 'r',label='Right ear')
+    plt.plot(df['head_x'],1*df['head_y'], 'g',label='Head')

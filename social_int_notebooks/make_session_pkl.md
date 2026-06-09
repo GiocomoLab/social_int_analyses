@@ -94,7 +94,7 @@ def update_sess_dict(mouse, day, KO = True):
               'scanner': "NLW",
               'n_channels':1,
               'n_planes':3
-                 })
+                 }
     return d
 
 def run_and_save(d):
@@ -105,7 +105,7 @@ def run_and_save(d):
     # depends on vr being loaded already
     alignment.align_SLEAP_to_2P(sess)
     TwoPUtils.sess.save_session(sess,'C:/Users/esay/data/social_interaction/SessPkls')  # CHANGE SO DEPENDENT ON PATH DICT
-    
+    TwoPUtils.sess.save_session(sess,'Z:/giocomo/esay/hipposs/social_interaction_data/processed_data/SessPkls')
 # source_stem
 ```
 
@@ -113,25 +113,32 @@ def run_and_save(d):
 social_mice
 ```
 
-<!-- #region jp-MarkdownHeadingCollapsed=true -->
 ### for loop to create sess files for all mice
-<!-- #endregion -->
 
 ```python
-for mouse in social_mice[-2:-1]:
+social_mice[-1:]
+```
+
+```python
+for mouse in social_mice[-1:]:
     print(mouse)
-    for day in range(18):
+    for day in range(2,3):
         print(day)
         d = update_sess_dict(mouse, day)
         run_and_save(d)
 
 ```
 
+```python
+d
+```
+
 ### try generating one sess file first
 
 ```python
-mouse = 'social-0051-3'
-day = 10
+mouse = 'social-4062-1'
+day = -1
+
 
 d = update_sess_dict(mouse, day)
 d
@@ -149,6 +156,14 @@ alignment.align_SLEAP_to_2P(sess)
 ```python
 TwoPUtils.sess.save_session(sess,'C:/Users/esay/data/social_interaction/SessPkls')
 TwoPUtils.sess.save_session(sess, 'Z:/giocomo/esay/hipposs/social_interaction_data/processed_data/SessPkls')
+```
+
+```python
+sess.vr_data
+```
+
+```python
+sess.vr_data.keys()
 ```
 
 <!-- #region jp-MarkdownHeadingCollapsed=true -->

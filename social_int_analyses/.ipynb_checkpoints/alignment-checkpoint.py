@@ -27,7 +27,7 @@ def align_VR_to_2P(self, overwrite=True, run_ttl_check = False):
         if "wheel" in self.vr_filename or "social-0043-1" in self.vr_filename:
             df = pp.load_sqlite(self.vr_filename,fix_teleports=False)
         else:
-            df = pp.load_sqlite(self.vr_filename,fix_teleports=True)
+            df = pp.load_sqlite(self.vr_filename,fix_teleports=False) #change to False if mouse does not run
             print(df.shape)
         
         if not self.VR_only:
@@ -47,11 +47,11 @@ def align_VR_to_2P(self, overwrite=True, run_ttl_check = False):
     else:
         print("VR data already set or overwrite=False")
             
-def align_SLEAP_to_2P(sess, sleap_dir = "C:/Users/esay/data/social_interaction/SLEAP_raw/videos", overwrite=True, run_ttl_check = False):
+def align_SLEAP_to_2P(sess, sleap_dir = "C:/Users/esay/data/social_interaction/SLEAP/SLEAP_raw/shank3_new", overwrite=True, run_ttl_check = False):
     sleap_file = os.path.join(sleap_dir, sess.mouse, sess.date, (sess.scene +'.h5') )
     
     if sess.tunnel_df is None or overwrite:
-        if 'Env1' in sess.vr_filename:
+        if 'Env' in sess.vr_filename:
             return
         elif "empty" in sess.vr_filename:
             return

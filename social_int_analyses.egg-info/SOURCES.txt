@@ -1,6 +1,8 @@
 README.md
 setup.py
 social_int_analyses/__init__.py
+social_int_analyses/alignment.py
+social_int_analyses/convert_h5_RL.py
 social_int_analyses/path_dict_esay.py
 social_int_analyses/sleap_utils.py
 social_int_analyses/social_int_sess_deets.py
